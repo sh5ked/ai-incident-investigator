@@ -1,0 +1,29 @@
+﻿
+services:
+  backend:
+    build:
+      context: ./backend/demo-service
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      SCENARIO: ${SCENARIO:-healthy}
+      MONGODB_URI: ${MONGODB_URI}
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./ops-agent
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+      DEMO_SERVICE_URL: http://backend:3001
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_MODEL: ${GROQ_MODEL:-openai/gpt-oss-20b}
+    ports:
+      - "3002:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
